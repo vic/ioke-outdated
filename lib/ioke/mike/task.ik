@@ -1,7 +1,7 @@
 Mike Task = Origin mimic
 Mike Task do(
 
-  mike:processName = '(
+  mike:processArgs = '(
     prerequisite = nil
     if(name kind?("Pair"),
       prerequisite = name value
@@ -9,26 +9,33 @@ Mike Task do(
     unless(name kind?("List"), name = mike:namespace splitName(name))
     mike = namespace(name[0..-2])
     unless(mike, error!("No such namespace: #{name[0..-2]}"))
-    name = name last)
+    name = name last
+    action ||= nil
+    unless(body nil? || body empty?,
+      action = body inject(Message fromText("fn"), m, a, m << a)
+      action = action evaluateOn(call ground, call receiver)))
   
   mike:set = syntax(''(dmacro(
     [>name, >action]
-    'mike:processName
+    body = nil
+    'mike:processArgs
     `self task:def(name, cell(:prerequisite), cell(:action), mike))))
 
   mike:def = syntax(''(dmacro(
     [>name, +body]
-    'mike:processName
-    action = nil
-    unless(body empty?,
-      action = body inject(Message fromText("fn"), m, a, m << a)
-      action = action evaluateOn(call ground, call receiver))
+    'mike:processArgs
     if(task = mike mike:namespace task(name),
       task addPrerequisite(cell(:prerequisite))
       task addAction(cell(:action)),
       task = `self task:def(name, cell(:prerequisite), cell(:action), mike))
     task)))
 
+  mike:defTask = syntax(''(dmacro(
+    [>taskKind, >name, +body]
+    'mike:processArgs
+    taskKind task:def(name, cell(:prerequisite), cell(:action), mike)
+  )))
+  
   task:def = method(name, prerequisite, action, mike,
     task = self mimic(mike)
     mike mike:namespace task(name) = task
@@ -69,8 +76,8 @@ Mike Task do(
     if(alreadyInvoked?, return(self))
     prerequisites each(p, 
       case(cell(:p) kind,
-        or("Symbol", "String"), 
-        task = mike:namespace lookup(p)
+        or("Symbol", "String"),
+        task = mike mike:namespace lookup(p)
         unless(task, error!("Don't know how to build task: #{p}"))
         task call,
         cell(:p) call))

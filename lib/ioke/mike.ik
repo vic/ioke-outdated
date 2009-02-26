@@ -6,7 +6,7 @@ use("mike/application")
 
 Mike do (
 
-  initialize = method(application Application mimic, namespace Namespace mimic,
+  initialize = method(application Application mimic(self), namespace Namespace mimic,
     @application = application
     namespace extend(self)
   )

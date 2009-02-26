@@ -35,5 +35,6 @@ Mike CoreTasks = Origin mimic do(
   file = Mike Task File mike:def
   fileCreate = Mike Task FileCreate mike:def
   directory = Mike Task Directory mike:def
+  defineTask = Mike Task mike:defTask
 
 )

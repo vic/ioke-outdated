@@ -3,17 +3,17 @@ use("iopt")
 Mike Application = Origin mimic
 Mike Application do (
 
-  initialize = method(
+  initialize = method(mike Mike mimic(self),
     @executionDir = System currentDirectory
+    @mike = mike
+    @optionParser = OptionParser mimic(mike)
   )
   
-  optionParser = method(@optionParser = OptionParser mimic)
-
-  loadMikeFile = method(mike,
+  loadMikeFile = method(
     @mikefile = findMikefile
     unless(mikefile, error!("No Mikefile found on #{executionDir}"))
     msg = Message fromText(FileSystem readFully(mikefile))
-    msg evaluateOn(mike, mike)
+    msg evaluateOn(mike)
   )
 
   findMikefile = method(fromDir nil,
@@ -25,8 +25,8 @@ Mike Application do (
 
 Mike Application OptionParser = IOpt mimic do (
 
-  initialize = method( 
-    @tasks = dict()
+  initialize = method(mike,
+    @mike = mike
   )
 
   mike:ioption = cell("iopt:ion")
@@ -34,29 +34,22 @@ Mike Application OptionParser = IOpt mimic do (
   
   iopt:ion = method(arg,
     if(o = mike:ioption(arg), return(o))
-    unless(task = tasks[arg],
-      
-    )
-    if(task,
+    if(task = @mike lookupTask(arg),
       action = IOpt Action mimic mimic!(task) do(init)
       action iopt = self
       action receiver = task
       action flags << task name
-      action documentation = task documentation
-      action argumentsCode = task argumentsCode
+      ;action documentation = task documentation
+      ;action argumentsCode = task argumentsCode
       Origin with(flag: task name, long: true, immediate: nil, action: action)))
 
   cell("[]") = method(option,
     unless(o = iopt:ion(option), return nil)
     if(o cell?(:action), o action, mike:at(option)))
 
-  addTask = method(task,
-    tasks[task name] = task)
-  
   printTasks = method(
-    tasks keys sort each(n,
-      n println
-    )
+    "TASKS here" println
+    System exit
   )
   
   printUsage = method("Print this help",

@@ -44,14 +44,18 @@ describe(Mike,
       m = Mike mimic
       m namespace should == m)
 
+    it("should execute the given code on the current namespace if given nil as name",
+      m = Mike mimic
+      m namespace(nil, mike:namespace) should == m mike:namespace)
+
     it("should return a new namespace if just given a name",
       m = Mike mimic
       m namespace(:foo) should mimic(m))
     
     it("should execute the given code on the new namespace",
-      v = nil
       m = Mike mimic
-      m namespace(:foo, v = mike:namespace) parent should == m mike:namespace
+      v = m namespace(:foo, mike:namespace)
+      v parent should == m mike:namespace
       v should == m namespace(:foo) mike:namespace)
     
   )
@@ -75,6 +79,9 @@ describe(Mike,
       t = m namespace(:foo) namespace(:bat) task(:man)
       m namespace(:foo) lookupTask("bat:man") should == t
       m namespace(:bat) lookupTask(:foo) should == m task(:foo)
+      
+      t = m namespace(:cool, task(:aid))
+      m lookupTask("cool:aid") should == t
     )
     
   )

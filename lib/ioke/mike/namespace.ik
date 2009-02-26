@@ -30,7 +30,6 @@ Mike Namespace do(
     ns = at(scope)
     ns tasks[name] = task
     task name = if(ns scope empty?, name, "%[%s:%]%s" format(ns scope, name))
-    mike application optionParser addTask(task)
     task)
 
   at = method("Obtain the namespace at the given scope", scope,
@@ -55,6 +54,7 @@ Mike Namespace do(
       [] self,
       
       [>name]
+      name ||= list()
       scope = if(name mimics?(List), name, mike:namespace splitName(name))
       unless(ns = mike:namespace at(scope),
         name = scope last
@@ -66,7 +66,8 @@ Mike Namespace do(
       
       [>name, body]
       mike = namespace(name)
-      body evaluateOn(mike, call ground))
+      body evaluateOn(mike))
+    
 
     lookupTask = method(name, mike:namespace lookup(name))
   );MikeMixin
