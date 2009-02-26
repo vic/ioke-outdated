@@ -7,8 +7,8 @@ Mike Task do(
       prerequisite = name value
       name = name key)
     unless(name kind?("List"), name = mike:namespace splitName(name))
-    mike = namespace(name[0..-2])
-    unless(mike, error!("No such namespace: #{name[0..-2]}"))
+    mike = namespace(name butLast)
+    unless(mike, error!("No such namespace: #{name butLast}"))
     name = name last
     action ||= nil
     unless(body nil? || body empty?,
@@ -39,12 +39,12 @@ Mike Task do(
   task:def = method(name, prerequisite, action, mike,
     task = self mimic(mike)
     mike mike:namespace task(name) = task
-    task prependMimic!(self) kind = self kind
     task addPrerequisite(cell(:prerequisite))
     task addAction(cell(:action))
     task)
 
-  initialize = method(
+  initialize = method(mixin nil,
+    if(mixin, prependMimic!(mixin))
     @initialize = method(mike,
       @mike = mike
       @alreadyInvoked? = false
@@ -72,17 +72,19 @@ Mike Task do(
     actions << cell(:action)
     self)
 
-  call = macro(
-    if(alreadyInvoked?, return(self), @alreadyInvoked? = true)
-    prerequisites each(p, 
+  invokePrerequisites = method(+rest, +:krest,
+    prerequisites each(p,
       case(cell(:p) kind,
         or("Symbol", "Text"),
         task = mike mike:namespace lookup(p)
         unless(task, error!("Don't know how to build task: #{p}"))
-        task call,
-        cell(:p) call))
-    actions each(action,
-      call activateValue(cell(:action), it: self))
+        task call(*rest, *krest),
+        cell(:p) call(*rest, *krest))))
+  
+  call = macro(
+    if(!needed? || alreadyInvoked?, return(self), @alreadyInvoked? = true)
+    invokePrerequisites
+    actions each(action, call activateValue(cell(:action), it: self))
     self)
 
   needed? = true

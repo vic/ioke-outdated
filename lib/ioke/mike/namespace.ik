@@ -20,13 +20,18 @@ Mike Namespace do(
   task = method("Obtain a task defined on this namespace", name, 
     scope = splitName(name asText)
     name = scope last
-    ns = at(scope[0..-2])
-    if(ns, ns tasks[name]))
+    ns = at(scope butLast)
+    if(ns, ns tasks[name]) || 
+    if(root tasks[name] mimics?(Mike Task File), root tasks[name]))
+
   
   cell("task=") = method("Register a task on this namespace", name, task,
+    if(task mimics?(Mike Task File) && !same?(root),
+      ;; register file tasks on root namespace
+      return(root task(name) = task))
     scope = splitName(name asText)
     name = scope last
-    scope = scope[0..-2]
+    scope = scope butLast
     ns = at(scope)
     ns tasks[name] = task
     task name = if(ns scope empty?, name, "%[%s:%]%s" format(ns scope, name))
@@ -68,7 +73,7 @@ Mike Namespace do(
       scope = if(name mimics?(List), name, mike:namespace splitName(name))
       unless(ns = mike:namespace under(scope),
         name = scope last
-        unless(ns = mike:namespace under(scope[0..-2]),
+        unless(ns = mike:namespace under(scope butLast),
           error!("No such namespace: #{scope}"))
         ns = Namespace mimic(ns, name)
         ns parent mike mimic(ns parent mike application, ns))

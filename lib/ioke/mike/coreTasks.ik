@@ -1,40 +1,68 @@
 use("mike/task")
+use("mike/fileUtils")
 
-Mike Task Default = Mike Task mimic
-Mike Task Default do(
+Mike Task do(
+
+  Default = Mike Task mimic
   
-)
+  File = Mike Task mimic
+  File do(
+    needed? = method(
+      error!("Implement file stat!")
+    )
+    
+    timestamp = method(
+      error!("Implement file stat!")
+    )
+  )
 
-Mike Task File = Mike Task mimic
-Mike Task File do(
+  FileCreate = Mike Task mimic(File)
+  FileCreate do(
+    needed? = method( ! Mike FileUtils exists?(name) )
+    timestamp = Mike FileUtils Early
+  )
+
+  Directory = Mike Task mimic(FileCreate)
+  Directory do(
   
-  needed? = method(
+    task:def = method("Directory tasks are always created on the root namespace.",
+      name, prerequisite, action, mike,
+      root = mike mike:namespace root
+      if(task = root task(name),
+        ;; already exists, just enhance the task
+        unless(task mimics?(self), error!("Expected #{name} to be a #{kind} task"))
+        task addPrerequisite(cell(:prerequisite))
+        task addAction(cell(:action)),
+        ;; create the task
+        task = self mimic(mike)
+        task addPrerequisite(cell(:prerequisite))
+        task addAction(fn(+r, +:k, Mike FileUtils mkdir(name)))
+        task addAction(cell(:action))
+        root task(name) = task
+        ;; and a task for each parent directory.
+        sub = task
+        Mike FileUtils eachParentOf(name, fn(dir,
+            unless(parent = root task(dir),
+               parent = self mimic(mike)
+               root task(dir) = parent
+               parent addAction(fn(+r, +:k, Mike FileUtils mkdir(dir))))
+            unless(parent mimics?(self), error!("Expected #{dir} to be a #{kind} task"))
+            sub addPrerequisite(parent name)
+            sub = parent
+      )))
+      task)
+  )
+
+  MikeMixin = Origin mimic do(
+
+    task = Mike Task Default mike:def
+    cell("task=") = Mike Task Default mike:set
+    file = Mike Task File mike:def
+    fileCreate = Mike Task FileCreate mike:def
+    directory = Mike Task Directory mike:def
+    defineTask = Mike Task mike:defTask
     
   )
-)
-
-Mike Task FileCreate = Mike Task mimic
-Mike Task FileCreate do(
-  needed? = method(
-    
-  )
-)
-
-
-Mike Task Directory = Mike Task mimic
-Mike Task Directory do(
-  needed? = method(
-    
-  )
-)
-
-Mike CoreTasks = Origin mimic do(
-
-  task = Mike Task Default mike:def
-  cell("task=") = Mike Task Default mike:set
-  file = Mike Task File mike:def
-  fileCreate = Mike Task FileCreate mike:def
-  directory = Mike Task Directory mike:def
-  defineTask = Mike Task mike:defTask
-
-)
+  Mike mimic!(MikeMixin)
+  
+); Mike Tasks

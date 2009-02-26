@@ -17,7 +17,7 @@ Mike Application do (
   )
 
   findMikefile = method(fromDir nil,
-    ;; TODO: seek on parent directories
+    ;; TODO: implement Runtime workingDirectory or the like.
     if(FileSystem file?("Mikefile"),
       "Mikefile"))
   
@@ -34,18 +34,20 @@ Mike Application OptionParser = IOpt mimic do (
   
   iopt:ion = method(arg,
     if(o = mike:ioption(arg), return(o))
-    if(task = @mike lookupTask(arg),
-      action = IOpt Action mimic mimic!(task) do(init)
+    if(task = @mike task(arg),
+      action = IOpt Action CellActivation mimic(:call)
       action iopt = self
       action receiver = task
       action flags << task name
-      ;action documentation = task documentation
-      ;action argumentsCode = task argumentsCode
+      action documentation = task documentation
+      action argumentsCode = task argumentsCode
       Origin with(flag: task name, long: true, immediate: nil, action: action)))
 
   cell("[]") = method(option,
     unless(o = iopt:ion(option), return nil)
-    if(o cell?(:action), o action, mike:at(option)))
+    if(o cell?(:action), 
+      o action, 
+      mike:at(option)))
 
   printTasks = method("Show tasks",
     "TODO: walk tasks and print them here" println
