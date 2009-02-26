@@ -25,6 +25,18 @@ Mike Application do (
 
 Mike Application OptionParser = IOpt mimic do (
 
+  TaskAction = IOpt Action mimic do (
+    initialize = method(task, iopt,
+      init
+      @receiver = task
+      @iopt = iopt
+      flags << task name)
+
+    cell(:documentation) = method(receiver documentation)
+    call = macro(call activateValue(receiver cell(:call), receiver))
+    arity = method(arityFrom(receiver argumentsCode))
+  )
+
   initialize = method(mike,
     @mike = mike
   )
@@ -34,20 +46,13 @@ Mike Application OptionParser = IOpt mimic do (
   
   iopt:ion = method(arg,
     if(o = mike:ioption(arg), return(o))
-    if(task = @mike task(arg),
-      action = IOpt Action CellActivation mimic(:call)
-      action iopt = self
-      action receiver = task
-      action flags << task name
-      action documentation = task documentation
-      action argumentsCode = task argumentsCode
+    if(task = @mike mike:namespace task(arg),
+      action = TaskAction mimic(task, self)
       Origin with(flag: task name, long: true, immediate: nil, action: action)))
 
   cell("[]") = method(option,
-    unless(o = iopt:ion(option), return nil)
-    if(o cell?(:action), 
-      o action, 
-      mike:at(option)))
+    unless(o = iopt:ion(option), return)
+    if(o cell?(:action), o action, mike:at(option)))
 
   printTasks = method("Show tasks",
     "TODO: walk tasks and print them here" println

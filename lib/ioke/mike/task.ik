@@ -63,6 +63,9 @@ Mike Task do(
   
   addAction = method(action,
     unless(cell(:action), return(self))
+    acode = cell(:action) argumentsCode
+    if(@argumentsCode nil? && !(acode nil? || acode == "..." || acode empty?),
+      @argumentsCode = acode)
     if(cell(:action) documentation,
       if(documentation, 
         @documentation = "%s\n%s" format(documentation, cell(:action) documentation),
@@ -87,5 +90,6 @@ Mike Task do(
     actions each(action, call activateValue(cell(:action), it: self))
     self)
 
+  argumentsCode = nil
   needed? = true
 )
