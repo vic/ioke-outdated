@@ -44,19 +44,39 @@ describe(Mike,
       m = Mike mimic
       m namespace should == m)
 
-    it("should execute the given code on the current namespace if given nil as name",
+    it("should return the current namespace if given . as name",
       m = Mike mimic
-      m namespace(nil, mike:namespace) should == m mike:namespace)
+      m namespace(".") == m)
+
+    it("should return the parent namespace if given .. as name",
+      m = Mike mimic
+      n = m namespace(:foo) namespace(:bar) namespace("..")
+      n should == m namespace(:foo)
+      n = m namespace(:bat) namespace(:man) namespace("...:foo:bar")
+      n should == m namespace(:foo) namespace(:bar))
+
+    it("should return the root namespace if given / as name",
+      m = Mike mimic
+      n = m namespace(:foo) namespace(:bar) namespace("/")
+      n should == m
+      n = m namespace(:foo) namespace(:bar) namespace("/:foo")
+      n should == m namespace(:foo)
+    )
 
     it("should return a new namespace if just given a name",
       m = Mike mimic
       m namespace(:foo) should mimic(m))
+
+    it("should return an existing namespace",
+      m = Mike mimic
+      n = m namespace(:foo) namespace(:bar)
+      n should == m namespace("foo:bar"))
     
     it("should execute the given code on the new namespace",
       m = Mike mimic
-      v = m namespace(:foo, mike:namespace)
-      v parent should == m mike:namespace
-      v should == m namespace(:foo) mike:namespace)
+      v = m namespace(:foo, yo = true)
+      m cell?(:yo) should be false
+      m namespace(:foo) yo should be true)
     
   )
 

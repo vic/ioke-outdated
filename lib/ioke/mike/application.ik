@@ -47,17 +47,15 @@ Mike Application OptionParser = IOpt mimic do (
     unless(o = iopt:ion(option), return nil)
     if(o cell?(:action), o action, mike:at(option)))
 
-  printTasks = method(
-    "TASKS here" println
+  printTasks = method("Show tasks",
+    "TODO: walk tasks and print them here" println
     System exit
   )
-  
-  printUsage = method("Print this help",
-    @println. System exit
-  )
+
+  printHelp = method("Show usage.", @ println. System exit)
 
   banner = "Usage: mike [options] [task ...]"
-  on("-h", "--help", :printUsage) priority = -10
+  on("-h", "--help", :printHelp) priority = -10
   on("--tasks", :printTasks) priority = -9
 
 )

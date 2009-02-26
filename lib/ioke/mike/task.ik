@@ -73,17 +73,16 @@ Mike Task do(
     self)
 
   call = macro(
-    if(alreadyInvoked?, return(self))
+    if(alreadyInvoked?, return(self), @alreadyInvoked? = true)
     prerequisites each(p, 
       case(cell(:p) kind,
-        or("Symbol", "String"),
+        or("Symbol", "Text"),
         task = mike mike:namespace lookup(p)
         unless(task, error!("Don't know how to build task: #{p}"))
         task call,
         cell(:p) call))
     actions each(action,
       call activateValue(cell(:action), it: self))
-    @alreadyInvoked? = true
     self)
 
   needed? = true

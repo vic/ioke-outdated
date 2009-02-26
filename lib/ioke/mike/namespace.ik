@@ -34,13 +34,23 @@ Mike Namespace do(
 
   at = method("Obtain the namespace at the given scope", scope,
     if(scope nil? || scope empty?, return(self))
-    namespace = nil
-    searching = self
-    while(namespace nil? && searching,
-      namespace = searching
-      scope takeWhile(n, namespace = namespace childs[n])
-      searching = searching parent)
-    namespace)
+    result = nil
+    searchOn = self
+    while(result nil? && searchOn,
+      unless(result = searchOn under(scope), searchOn = searchOn parent))
+    result)
+
+  under = method("Obtain the child namespace under scope", scope,
+    if(scope nil? || scope empty?, return(self))
+    result = self
+    scope takeWhile(n,
+      case(n,
+        "/", result = root,
+        #/^\\.+$/,
+        (n length - 1) times(result = result parent || root) || result,
+        else,
+        result = result childs[n]))
+    result)
 
   extend = method("Extend a mike instance with namespace related methods
     and bind it to this namespace.", mike,
@@ -56,9 +66,9 @@ Mike Namespace do(
       [>name]
       name ||= list()
       scope = if(name mimics?(List), name, mike:namespace splitName(name))
-      unless(ns = mike:namespace at(scope),
+      unless(ns = mike:namespace under(scope),
         name = scope last
-        unless(ns = mike:namespace at(scope[0..-2]),
+        unless(ns = mike:namespace under(scope[0..-2]),
           error!("No such namespace: #{scope}"))
         ns = Namespace mimic(ns, name)
         ns parent mike mimic(ns parent mike application, ns))
@@ -68,7 +78,6 @@ Mike Namespace do(
       mike = namespace(name)
       body evaluateOn(mike))
     
-
     lookupTask = method(name, mike:namespace lookup(name))
   );MikeMixin
   
