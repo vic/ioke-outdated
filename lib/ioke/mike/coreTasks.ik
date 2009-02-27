@@ -36,7 +36,7 @@ Mike Task do(
         ;; create the task
         task = self mimic(mike)
         task addPrerequisite(cell(:prerequisite))
-        task addAction(fn(+r, +:k, Mike FileUtils mkdir(name)))
+        task addAction(fn(+r, +:k, FileSystem ensureDirectory(name)))
         task addAction(cell(:action))
         root task(name) = task
         ;; and a task for each parent directory.
@@ -45,7 +45,7 @@ Mike Task do(
             unless(parent = root task(dir),
                parent = self mimic(mike)
                root task(dir) = parent
-               parent addAction(fn(+r, +:k, Mike FileUtils mkdir(dir))))
+               parent addAction(fn(+r, +:k, FileSystem ensureDirectory(dir))))
             unless(parent mimics?(self), error!("Expected #{dir} to be a #{kind} task"))
             sub addPrerequisite(parent name)
             sub = parent
