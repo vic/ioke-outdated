@@ -23,7 +23,11 @@ Mike Application do (
 
   topLevel = method(argv,
     loadMikeFile
-    optionParser parse(argv)
+    commandLine = optionParser parse(argv, argStopAtNextFlag: false)
+    unless(commandLine rest empty?, 
+      error!("Don't know how to build tasks: " + 
+        "%[%s %]" format(commandLine rest)))
+    commandLine execute
   )
   
 )
@@ -39,7 +43,7 @@ Mike Application OptionParser = IOpt mimic do (
 
     cell(:documentation) = method(receiver documentation)
     call = macro(call activateValue(receiver cell(:call), receiver))
-    arity = method(arityFrom(receiver argumentsCode))
+    arity = method(IOpt Action Arity from(receiver))
   )
 
   initialize = method(mike,
