@@ -20,6 +20,11 @@ Mike Application do (
     ;; TODO: implement Runtime workingDirectory or the like.
     if(FileSystem file?("Mikefile"),
       "Mikefile"))
+
+  topLevel = method(argv,
+    loadMikeFile
+    optionParser parse(argv)
+  )
   
 )
 
@@ -41,18 +46,13 @@ Mike Application OptionParser = IOpt mimic do (
     @mike = mike
   )
 
-  mike:ioption = cell("iopt:ion")
-  mike:at = cell("[]")
+  mike:get = cell("iopt:get")
   
-  iopt:ion = method(arg,
-    if(o = mike:ioption(arg), return(o))
+  iopt:get = method(arg,
+    if(o = mike:get(arg), return(o))
     if(task = @mike mike:namespace task(arg),
       action = TaskAction mimic(task, self)
       Origin with(flag: task name, long: true, immediate: nil, action: action)))
-
-  cell("[]") = method(option,
-    unless(o = iopt:ion(option), return)
-    if(o cell?(:action), o action, mike:at(option)))
 
   printTasks = method("Show tasks",
     "TODO: walk tasks and print them here" println
