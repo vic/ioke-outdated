@@ -23,10 +23,14 @@ Mike Application do (
 
   topLevel = method(argv,
     loadMikeFile
-    commandLine = optionParser parse(argv, argStopAtNextFlag: false)
-    unless(commandLine rest empty?, 
-      error!("Don't know how to build tasks: " + 
-        "%[%s %]" format(commandLine rest)))
+    commandLine = optionParser parse(argv, 
+      argUntilNextOption: false, includeUnknownOption: false)
+    unless(commandLine unknownOptions empty?,
+      error!(IOpt UnknownOption, text:
+        "Unknown options: %[%s %]" format(commandLine unknownOptions)))
+    unless(commandLine programArguments empty?, 
+      error!("Don't know how to build tasks: %[%s %]" format(
+          commandLine programArguments)))
     commandLine execute
   )
   
@@ -39,7 +43,7 @@ Mike Application OptionParser = IOpt mimic do (
       init
       @receiver = task
       @iopt = iopt
-      flags << task name)
+      options << task name)
 
     cell(:documentation) = method(receiver documentation)
     call = macro(call activateValue(receiver cell(:call), receiver))
@@ -56,7 +60,7 @@ Mike Application OptionParser = IOpt mimic do (
     if(o = mike:get(arg), return(o))
     if(task = @mike mike:namespace task(arg),
       action = TaskAction mimic(task, self)
-      Origin with(flag: task name, long: true, immediate: nil, action: action)))
+      Origin with(option: task name, short: nil, immediate: nil, action: action)))
 
   printTasks = method("Show tasks",
     "TODO: walk tasks and print them here" println
