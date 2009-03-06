@@ -3,18 +3,27 @@ use("xmlBuilder")
 
 describe(XmlBuilder,
 
-  describe("$", 
+  pets = list(
+    Origin with(name: "polo", kind: "Dog", about: "Nice white guy"),
+    Origin with(name: "nemo", kind: "Fish", about: "Very famous")
+  )
+
+  ioke = dict(
+    language: "Ioke",
+    platform: "JVM",
+    creator: dict(
+      name: "Ola Bini"
+    ),
+  )
+
+  describe("$",
     it("should construct an xml", 
-      pets = list(
-        Origin with(name: "polo", kind: "Dog", about: "Nice white guy"),
-        Origin with(name: "nemo", kind: "Fish", about: "Very famous")
-      )
       xml = XmlBuilder mimic
       xml $pets(
         pets each(i, pet,
           $pet(id: i, 
             kind: pet kind,
-            $name = pet name
+            $name << pet name
             $ << pet about
           )
         )
@@ -28,16 +37,12 @@ describe(XmlBuilder,
 
   describe("/", 
     it("should construct an xml", 
-      pets = list(
-        Origin with(name: "polo", kind: "Dog", about: "Nice white guy"),
-        Origin with(name: "nemo", kind: "Fish", about: "Very famous")
-      )
       xml = XmlBuilder mimic
       xml/pets(
         pets each(i, pet,
           xml/pet(id: i, 
             kind: pet kind,
-            xml/name = pet name
+            xml/name << pet name
             xml << pet about
           )
         )
@@ -47,6 +52,21 @@ describe(XmlBuilder,
       "<pet id=\"1\" kind=\"Fish\"><name>nemo</name>Very famous</pet>"+
       "</pets>"
     )
+
+  )
+
+  describe("<<",
+
+    it("should append an dict representation as xml",
+      xml = XmlBuilder mimic
+      xml/ioke << ioke
+      xml asText should == "<ioke>"+
+      "<language>Ioke</language>"+
+      "<platform>JVM</platform>"+
+      "<creator><name>Ola Bini</name></creator>"+
+      "</ioke>"
+    )
+    
   )
 
 
