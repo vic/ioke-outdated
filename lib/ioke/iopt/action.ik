@@ -12,7 +12,7 @@ IOpt Action do(
       kargs = dict()
       if(@cell(:valueToActivate) kind?("LexicalBlock") ||
          @cell(:valueToActivate) kind?("LexicalMacro"),
-         kargs[:it] = receiver)
+         kargs[:"@"] = kargs[:self] = receiver)
       call activateValue(@cell(:valueToActivate), receiver, *kargs))
     
   );ValueActivation
@@ -26,7 +26,7 @@ IOpt Action do(
       if(receiver, @documentation = receiver cell(cellName) documentation, nil))
 
     argumentsCode = method(
-      if(receiver, receiver cell(cellName) argumentsCode), nil)
+      if(receiver, receiver cell(cellName) argumentsCode, nil))
     
     call = macro(call resendToValue(receiver cell(cellName), receiver))
     
@@ -60,7 +60,7 @@ IOpt Action do(
   );MessageEvaluation
 
   init = method(
-    @flags = set()
+    @options = set()
     @priority = 0
   )
 
@@ -77,37 +77,45 @@ IOpt Action do(
     @cell(:priority) = value
     self)
 
+  ; The object used to coerce arguments for this action.
+  coerce = nil
+  coercing = method(+types, +:coersions,
+    @coerce = IOpt CommandLine Coerce mimic(*types, *coersions)
+    self)
+
   consume = method("Take arguments for this action according to its arity.
     
-    The argv list must have the a flag handled by this action as first element,
+    The argv list must have its first element be one of the options handled by this action
     otherwise a NoActionForOption will be signaled.
     
     This method returns an object with the following cells: 
 
-      flag: The flag that was processed
+      option: The option that was processed
       remnant: The elements from argv that were not taken as arguments for this action.
       positional: A list of positional arguments for this action.
       keywords: A dict of keyword arguments for this action.
       
-    ", argv, option iopt iopt:ion(argv first), stopAtNextFlag: true,
-    if(option nil? || !flags include?(option flag),
+    ", argv, handler iopt iopt:ion(argv first), untilNextOption: true, coerce: nil,
+    if(handler nil? || !options include?(handler option),
       error!(NoActionForOption, 
-        text: "Cannot handle flag %s not in ([%%s,%])" format(
-          if(option, option flag, argv first), flags),
-        option: if(option, option flag, argv first)))
+        text: "Cannot handle option %s not in %s" format(
+          if(handler, handler option, argv first), options inspect),
+        option: if(handler, handler option, argv first)))
 
     remnant = argv rest
     currentKey = nil
     args = list()
     klist = list()
     kmap = dict()
-    
-    if(option immediate && arity positional?, args << option immediate)
+
+    coerced = fn(txt,
+      if(coerce == false || @coerce == false, txt,
+        (coerce || @coerce || IOpt CommandLine Coerce mimic) coerce(txt)))
 
     shouldContinue = fn(arg, 
       cond(
-        ;; if we have found the next flag
-        stopAtNextFlag && iopt[arg], false,
+        ;; if we have found the next option
+        untilNextOption && iopt[arg], false,
 
         ;; if we need a value for a keyword argument
         currentKey, true,
@@ -126,6 +134,14 @@ IOpt Action do(
         
         false))
 
+    if(handler short && handler immediate,
+      opt = iopt iopt:get(handler short + handler immediate)
+      if(opt && opt action && opt short,
+        remnant = [handler short + handler immediate] + remnant
+        handler immediate = nil))
+      
+    if(handler immediate && arity positional?, args << coerced(handler immediate))
+
     idx = remnant findIndex(arg,
       cond(
         !shouldContinue(arg), true,
@@ -137,31 +153,31 @@ IOpt Action do(
           error!(OptionKeywordAlreadyProvided, 
             text: "Keyword #{keyword} was specified more than once.",
             keyword: keyword),
-          kmap[keyword] = key immediate
+          kmap[keyword] = coerced(key immediate)
           if(key immediate, klist << keyword, currentKey = keyword))
         false,
 
         currentKey, ;; set last keyword if missing value
         klist << currentKey
-        kmap[currentKey] = arg
+        kmap[currentKey] = coerced(arg)
         currentKey = nil,
         
-        args << arg
+        args << coerced(arg)
         false))
 
     Origin with(
-      flag: option flag, 
+      option: handler option,
       remnant: remnant[(idx || 0-1)..-1],
       positional: args,
       keywords: kmap)
 
-    );consume
+  );consume
 
-  perform = method(optionArgs, iopt nil, 
-    messageName = optionArgs flag
+  perform = method(args, iopt nil,
+    messageName = args option
     let(@cell(messageName), @cell(:call),
       @iopt, if(@cell?(:iopt), iopt || @iopt, iopt),
-      send(messageName, *(optionArgs positional), *(optionArgs keywords))))
+      send(messageName, *(args positional), *(args keywords))))
 
   argumentsCode = nil
   arity = method(@arity = Arity from(argumentsCode))
