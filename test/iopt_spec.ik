@@ -173,11 +173,17 @@ describe(IOpt,
       o on should == o)
 
     describe("when given options as first arguments", 
+      
       it("should create a lexical block to handle the option",
         o = IOpt mimic
         o on("-h", "--help", "Display Help", @print. System exit)
         o["-h"] should mimic(IOpt Action ValueActivation)
         o["--help"] should mimic(IOpt Action ValueActivation))
+
+      it("should concatenate text for action documentation",
+        o = IOpt mimic
+        o on("-h", "Show", "This", "Help", @print)
+        o["-h"] documentation should == "Show\nThis\nHelp")
 
       describe("when the last argument is a symbol",
 
@@ -225,7 +231,7 @@ describe(IOpt,
 
       describe("when the last argument is a symbol",
 
-        it("should create a cell assingment action if symbol starts with :@",
+        it("should create a cell assingment action if symbol starts with @",
           v = Origin mimic
           o = IOpt mimic
           o on(v, "--set", "Assign value to a cell on v", :@setMePlease)
@@ -246,6 +252,13 @@ describe(IOpt,
 
  describe("on=",
 
+    it("should evaluate the last argument as the action",
+      o = IOpt mimic
+      o showHelp = method(@print)
+      o on("-h", "--help") = o cell(:showHelp)
+      o["-h"] should mimic(IOpt Action ValueActivation)
+      o["-h"] cell(:valueToActivate) should be same(o cell(:showHelp)))
+
     describe("when given options as first arguments", 
       it("should create an Action ValueActivation",
         o = IOpt mimic
@@ -255,9 +268,9 @@ describe(IOpt,
 
       describe("when the last argument is a symbol",
 
-        it("should create a cell assingment action if symbol starts with :@",
+        it("should create a cell assingment action if symbol starts with @",
           o = IOpt mimic
-          o on("--set") = :@setMePlease
+          o on("--set") = :"@setMePlease"
           o["--set"] should mimic(IOpt Action CellAssignment))
 
         it("should create a cell activation action",
@@ -300,10 +313,10 @@ describe(IOpt,
 
       describe("when the last argument is a symbol",
 
-        it("should create a cell assingment action if symbol starts with :@",
+        it("should create a cell assingment action if symbol starts with @",
           v = Origin mimic
           o = IOpt mimic
-          o on(v, "--set", "Assign value to a cell on v") = :@setMePlease
+          o on(v, "--set", "Assign value to a cell on v") = :"@setMePlease"
           o["--set"] should mimic(IOpt Action CellAssignment)
           o["--set"] receiver should == v)
 
@@ -725,15 +738,22 @@ describe(IOpt CommandLine,
 
   it("should correctly parse clustered short options", 
     o = IOpt mimic
+    o on("-a", nil)
+    o on("-b", nil)
     o on("-v", +n, nil)
-    c = IOpt CommandLine mimic(o, ["-vvv", "3"])
+    c = IOpt CommandLine mimic(o, ["-abv", "3"])
     c options length should == 3
-    c options first option should == "-v"
+    c options first option should == "-a"
     c options first args positional should be empty
-    c options second option should == "-v"
+    c options second option should == "-b"
     c options first args positional should be empty
     c options third option should == "-v"
     c options third args positional should == [3]
+
+    c = IOpt CommandLine mimic(o, ["-vab"])
+    c options length should == 1
+    c options first option should == "-v"
+    c options first args positional should == ["ab"]
 
     c = IOpt CommandLine mimic(o, ["-v41v"])
     c options length should == 1
