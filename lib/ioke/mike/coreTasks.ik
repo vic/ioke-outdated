@@ -8,11 +8,17 @@ Mike Task do(
   File = Mike Task mimic
   File do(
     needed? = method(
-      error!("Implement file stat!")
+      !FileSystem exists?(name) || out_of_date?(timestamp)
     )
     
     timestamp = method(
-      error!("Implement file stat!")
+      Mike FileUtils lastModified(name)
+    )
+
+    out_of_date? = method(stamp,
+      prerequisites any?(p,
+        cell(:p) cell?(:timestamp) && p timestamp > stamp
+      )
     )
   )
 

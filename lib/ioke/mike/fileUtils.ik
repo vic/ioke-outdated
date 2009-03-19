@@ -1,6 +1,16 @@
 Mike FileUtils = Origin mimic do(
-  
-  Early = Origin mimic do(<=> = method(o, -1))
+
+  Early = Origin mimic mimic!(Mixins Comparing) do(
+    asText = method("EARLY")
+    <=> = method(o, -1)
+  )
+
+  lastModified = method(path, 
+    if(FileSystem exists?(path),
+      time = java:io:File new(path) lastModified
+      "#{time}" toDecimal,
+      Early)
+  )
 
   file? = method(n, FileSystem file?(n))
   directory? = method(n, FileSystem directory?(n))
@@ -14,9 +24,9 @@ Mike FileUtils = Origin mimic do(
   
   mkdir = method(dir, FileSystem ensureDirectory(dir))
   
-  MikeMixin = Origin mimic do(
-    
-  )
+  MikeMixin = Origin mimic
+  [ :file?, :directory?, :mkdir,
+    ] each(name, MikeMixin cell(name) = cell(name))
   Mike mimic!(MikeMixin)
 
 )

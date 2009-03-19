@@ -3,9 +3,9 @@ Mike Task do(
 
   mike:processArgs = '(
     prerequisite = nil
-    if(name kind?("Pair"),
+    if(name mimics?(Pair),
       prerequisite = name value
-      name = name key)
+      name = name key asText)
     unless(name kind?("List"), name = mike:namespace splitName(name))
     mike = namespace(name butLast)
     unless(mike, error!("No such namespace: #{name butLast}"))
@@ -49,7 +49,7 @@ Mike Task do(
       @mike = mike
       @alreadyInvoked? = false
       @actions = list()
-      @prerequisites = list())
+      @prereqs = list())
   )
   
   addPrerequisite = method(prerequisite,
@@ -57,7 +57,7 @@ Mike Task do(
     addP = fn(p, 
       case(cell(:p) kind,
         "List", p each(p, addP(p)),
-        prerequisites << cell(:p)))
+        prereqs << cell(:p)))
     addP(cell(:prerequisite))
     self)
   
@@ -75,14 +75,22 @@ Mike Task do(
     actions << cell(:action)
     self)
 
-  invokePrerequisites = method(+rest, +:krest,
-    prerequisites each(p,
+  prerequisites = method("Return a list of prerequisites resolved as Task objects.", 
+    prereqs map(p, 
       case(cell(:p) kind,
         or("Symbol", "Text"),
         task = mike mike:namespace lookup(p)
         unless(task, error!("Don't know how to build task: #{p}"))
-        task call(*rest, *krest),
-        cell(:p) call(*rest, *krest))))
+        task,
+        cell(:p))
+    )
+  )
+
+  invokePrerequisites = method(+rest, +:krest,
+    prerequisites each(p, cell(:p) call(*rest, *krest) )
+  )
+
+  timestamp = method(Mike FileUtils Early)
   
   call = macro(
     if(!needed? || alreadyInvoked?, return(self), @alreadyInvoked? = true)
