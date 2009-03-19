@@ -22,6 +22,10 @@ public class ClassRegistry {
         this.classLoader = new IokeClassLoader(runtime.getClass().getClassLoader());
     }
 
+    public IokeClassLoader getClassLoader() {
+        return classLoader;
+    }
+
     public void defineClass(String className, String realName, byte[] classData) {
         classLoader.defineClass(className, classData);
         NAMES.put(realName, className);

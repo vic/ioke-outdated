@@ -85,7 +85,16 @@ describe("JavaGround",
   )
 
   describe("use of jar-files",
-    it("should have tests")
+    it("should have a java:classpath object",
+      JavaGround cell?("java:classpath") should be true
+    )
+    
+    it("should add a jar file to ioke java:classpath",
+      fn(JavaGround org:apache:log4j:Logger) should signal(Condition Error NoSuchCell)
+      JavaGround java:classpath << "lib/build/log4j-1.2.9.jar"
+      JavaGround org:apache:log4j:Logger kind should == "java:lang:Class"
+    )
+    
   )
 )
 

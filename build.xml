@@ -16,8 +16,12 @@
 
   <path id="build.classpath">
     <fileset dir="${lib.build.dir}" includes="*.jar"/>
+  </path>
+
+  <path id="runtime.classpath">
     <fileset dir="${lib.release.dir}" includes="*.jar"/>
   </path>
+
 
   <target name="prepare" description="Creates the directories needed for building">
     <mkdir dir="${build.dir}"/>
@@ -70,7 +74,7 @@
 
   <target name="test" depends="compile" description="Runs all ISpec tests">
     <java classname="ioke.lang.Main" fork="true" failonerror="true" maxmemory="256m">
-      <classpath refid="build.classpath"/>
+      <classpath refid="runtime.classpath"/>
       <classpath path="${classes.dir}"/>
 
       <arg line="bin/ispec test -fs"/>
@@ -79,7 +83,7 @@
 
   <target name="coverage" depends="coverage.instrument" description="Runs all ISpec tests using Cobertura and produces a report">
     <java classname="ioke.lang.Main" fork="true" failonerror="true">
-      <classpath refid="build.classpath"/>
+      <classpath refid="runtime.classpath"/>
       <classpath path="${coverage.classes.dir}"/>
       <classpath path="${classes.dir}"/>
 
