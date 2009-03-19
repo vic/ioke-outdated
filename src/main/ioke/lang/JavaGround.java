@@ -3,7 +3,12 @@
  */
 package ioke.lang;
 
+import java.io.File;
+
 import java.math.BigDecimal;
+
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +47,7 @@ public class JavaGround {
                     String name = Text.getText(arg);
                     Class<?> c = null;
                     try {
-                        c = Class.forName(name);
+                        c = Class.forName(name, true, runtime.classRegistry.getClassLoader());
                     } catch(Exception e) {
                         runtime.reportJavaException(e, message, context);
                     }
@@ -169,6 +174,38 @@ public class JavaGround {
                     Class newType = JavaIntegration.getOrCreate(types, context.runtime.classRegistry);
 //                     System.err.println(newType);
                     return IokeRegistry.integratedWrap(newType, context);
+                }
+            }));
+
+        final IokeObject classpath = runtime.origin.mimic(null, null);
+        obj.setCell("java:classpath", classpath);
+        classpath.registerMethod(runtime.newJavaMethod("Add a jar to the ioke classpath", new TypeCheckingJavaMethod("<<") {
+                private final TypeCheckingArgumentsDefinition ARGUMENTS = TypeCheckingArgumentsDefinition
+                    .builder()
+                    .receiverMustMimic(classpath)
+                    .withRequiredPositional("jar").whichMustMimic(runtime.text)
+                    .getArguments();
+
+                @Override
+                public TypeCheckingArgumentsDefinition getArguments() {
+                    return ARGUMENTS;
+                }
+
+                @Override
+                public Object activate(IokeObject method, Object on, List<Object> args, Map<String, Object> keywords, IokeObject context, IokeObject message) throws ControlFlow {
+                    String path = Text.getText(args.get(0));
+                    try { 
+                        URL url = null;
+                        if(new File(path).exists()) { 
+                            url = new File(path).toURL();
+                        } else {
+                            url = new URL(path);
+                        }
+                        runtime.classRegistry.getClassLoader().addURL(url);
+                    } catch(MalformedURLException e) {
+                        runtime.reportJavaException(e, message, context);
+                    }
+                    return on;
                 }
             }));
     }

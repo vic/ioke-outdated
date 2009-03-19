@@ -62,4 +62,3 @@ JavaGround import = method(+rest, +:krest,
   krest each(im,
     unless(self cell?(im key),
       self cell(im key) = im value)))
-
