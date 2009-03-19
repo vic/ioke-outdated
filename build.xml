@@ -8,12 +8,6 @@
   <property file="build.properties"/>
   <property file="default.build.properties"/>
 
-  <taskdef resource="tasks.properties">
-    <classpath>
-      <fileset dir="${lib.build.dir}" includes="*.jar"/>
-    </classpath>
-  </taskdef>
-
   <path id="build.classpath">
     <fileset dir="${lib.build.dir}" includes="*.jar"/>
   </path>
@@ -22,6 +16,12 @@
     <fileset dir="${lib.release.dir}" includes="*.jar"/>
   </path>
 
+  <taskdef resource="tasks.properties">
+    <classpath>
+      <path refid="build.classpath" />
+      <path refid="runtime.classpath" />
+    </classpath>
+  </taskdef>
 
   <target name="prepare" description="Creates the directories needed for building">
     <mkdir dir="${build.dir}"/>
