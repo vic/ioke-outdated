@@ -40,7 +40,7 @@ Mike Application OptionParser = IOpt mimic do (
 
   TaskAction = IOpt Action mimic do (
     initialize = method(task, iopt,
-      init
+      super
       @receiver = task
       @iopt = iopt
       options << task name)
