@@ -1166,6 +1166,25 @@ describe(List,
     )
   )
 
+  describe("push",
+    it("should return the receiver",
+      l = list
+      l push(1, 2, 3) should be same(l)
+    )
+
+    it("should prepend objects to the front of list",
+      l = list(1, 2)
+      l push(3, 4)
+      l should == list(1, 2, 3, 4)
+    )
+
+    it("should increment length by the number of arguments",
+      l = list
+      l push(1)
+      l length should == 1
+    )
+  )
+ 
 )
 
 describe("DefaultBehavior", 

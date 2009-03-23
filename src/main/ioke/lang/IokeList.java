@@ -584,6 +584,31 @@ public class IokeList extends IokeData {
                 	return copyList(context, receiver);
                 }
             }));
+
+        obj.registerMethod(runtime.newJavaMethod(
+                "takes one or more arguments, appending them to the end of this list. returns the reveiver.", 
+                new TypeCheckingJavaMethod("push") {
+                	
+                private final TypeCheckingArgumentsDefinition ARGUMENTS = TypeCheckingArgumentsDefinition
+                	.builder()
+                	.receiverMustMimic(runtime.list)
+                	.withRequiredPositional("element")
+                	.withRest("elements")
+                	.getArguments();
+            
+                @Override
+                public TypeCheckingArgumentsDefinition getArguments() {
+                	return ARGUMENTS;
+                }
+
+                @Override
+                public Object activate(IokeObject method, Object on, List<Object> args, Map<String, Object> keywords, IokeObject context, IokeObject message) throws ControlFlow {
+                	List<Object> receiver = getList(on);
+                        receiver.addAll(args);
+                	return on;
+                }
+            }));
+
     }
 
     public void add(Object obj) {
