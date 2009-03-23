@@ -23,17 +23,17 @@ DokGen do(
     outputDir = "dok"
     specsPattern = "test/**/*_spec.ik"
 
-    on["-o", "--output-dir"] = method("Output directory", dir outputDir, 
+    on("-o", "--output-dir") = method("Output directory", dir, 
       @outputDir = dir)
 
-    on["--[no-]combine-specs"] = method("Combine with specs?", v, 
+    on("--no-combine-specs") = method("Dont combine with specs", v, 
       @combineWithSpecs? = v)
     
-    on["--spec"] = method("Specs pattern", glob specsPattern,
+    on("--spec") = method("Combine with specs matching pattern", glob,
       @combineWithSpecs? = true
       @specsPattern = glob)
     
-    on["-h", "--help"] = method("Display usage", @println. System exit)
+    on("-h", "--help") = method("Display usage", @println. System exit)
     on["-h"] priority = -10
   )
 
