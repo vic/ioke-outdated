@@ -1150,6 +1150,22 @@ describe(List,
     )
   )
 
+  describe("pop",
+    it("should return nil for an empty list",
+      list pop should be nil
+    )
+
+    it("should return the last element on the list",
+      list(1,2) pop should == 2
+    )
+
+    it("should remove the last element from the list",
+      l = list(1, 2)
+      l pop
+      l should == list(1)
+    )
+  )
+
 )
 
 describe("DefaultBehavior", 

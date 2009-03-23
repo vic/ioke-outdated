@@ -35,6 +35,10 @@ List shift = method(
   "remove the first element from the list. return the removed element",
   removeAt!(0))
 
+List pop = method(
+  "remove the last element from the list. return the removed element",
+  removeAt!(0-1))
+
 List asList = method(
   "returns this list",
   self)
