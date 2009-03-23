@@ -31,6 +31,10 @@ List butLast = method(
     DefaultBehavior [],
     [0...end]))
 
+List shift = method(
+  "remove the first element from the list. return the removed element",
+  removeAt!(0))
+
 List asList = method(
   "returns this list",
   self)

@@ -1133,6 +1133,23 @@ describe(List,
       List should checkReceiverTypeOn(:removeFirst!, 0)
     )
   )
+
+  describe("shift",
+    it("should return nil for an empty list",
+      list shift should be nil
+    )
+
+    it("should return the first element on the list",
+      list(1) shift should == 1
+    )
+
+    it("should remove the first element from the list",
+      l = list(1, 2)
+      l shift
+      l should == list(2)
+    )
+  )
+
 )
 
 describe("DefaultBehavior", 
