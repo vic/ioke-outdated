@@ -1172,7 +1172,7 @@ describe(List,
       l push(1, 2, 3) should be same(l)
     )
 
-    it("should prepend objects to the front of list",
+    it("should append objects to the end of list",
       l = list(1, 2)
       l push(3, 4)
       l should == list(1, 2, 3, 4)
@@ -1181,6 +1181,25 @@ describe(List,
     it("should increment length by the number of arguments",
       l = list
       l push(1)
+      l length should == 1
+    )
+  )
+
+  describe("unshift",
+    it("should return the receiver",
+      l = list
+      l unshift(1, 2, 3) should be same(l)
+    )
+
+    it("should prepend objects to the front of list",
+      l = list(1, 2)
+      l unshift(3, 4)
+      l should == list(3, 4, 1, 2)
+    )
+
+    it("should increment length by the number of arguments",
+      l = list
+      l unshift(1)
       l length should == 1
     )
   )
