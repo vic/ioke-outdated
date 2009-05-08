@@ -196,11 +196,25 @@ describe(DefaultBehavior,
   )
 
   describe("if", 
-    it("should evaluate it's first element once", 
+
+    it("should act as operator if second argument is terminator ", 
+      x=42
+      if(x++, .)
+      x should == 43
+    )
+
+    it("should evaluate it's first element once if given a single argument and receiver is true", 
       x=42
       if(x++)
       x should == 43
     )
+
+    it("should not evaluate it's first element once if given a single argument and receiver is non true", 
+      x=42
+      nil if(x++)
+      x should == 42
+    )
+
     
     it("should return it's second argument if the first element evaluates to true", 
       if(true, 42, 43) should == 42
@@ -236,10 +250,11 @@ describe(DefaultBehavior,
   )
 
   describe("unless", 
-    it("should evaluate it's first element once", 
+    
+    it("should act as operator if second argument is terminator ", 
       x=42
-      unless(x++)
-      x should == 43
+      unless(x++, .)
+      x should == 42
     )
     
     it("should return it's second argument if the first element evaluates to false", 
@@ -249,10 +264,14 @@ describe(DefaultBehavior,
     it("should return it's third argument if the first element evaluates to true", 
       unless(true, 42, 43) should == 43
     )
+
+    it("should not evaluate first argument if given a single argument and receiver is true", 
+      true unless(44) should be true
+    )
     
-    it("should return the result of evaluating the first argument if there are no more arguments", 
-      unless(44) should == 44
-)
+    it("should return the result of evaluating the first argument if given a single argument and receiver is non-true",
+      false unless(44) should == 44
+    )
     
     it("should return the result of evaluating the first argument if it is true and there are only two arguments", 
       unless(true, 13) should be true

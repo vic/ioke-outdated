@@ -2963,4 +2963,74 @@ describe("operator",
       (223524534!=223524534) should be false
     )
   )
+
+  describe("unless",
+
+    describe("when receiver is true",
+      it("should not evaluate expression",
+        n = nil
+        (n = 24) unless true
+        n should be nil
+      )
+      
+      it("should return condition value",
+        ( 22 unless true ) should == true
+      )
+    )
+
+    describe("when receiver is false",
+      it("should evaluate expression",
+        n = nil
+        (n = 24) unless false
+        n should == 24
+      )
+
+      it("should return expression value",
+        (22 unless false) should == 22
+      )
+    )
+    
+  )
+
+  describe("if",
+
+    describe("when receiver is true",
+
+      it("should evaluate expression",
+        cell?(:n) should be false
+        ( n = 24 + 6 ) if list empty?
+        n should == 30
+      )
+
+      it("should evaluate expression",
+        x = 1
+        foo = fnx(n, x = n)
+        x should == 1
+        foo(24) if nil not
+        x should == 24
+      )
+    
+      it("should return the evaluated expression",
+        (22 if true) should == 22
+      )
+
+    )
+
+    describe("when receiver is false",
+
+       it("should not evaluate expression",
+         dontFail if nil
+       )
+    
+       it("should return the receiver",
+         n = 1
+         ( n = 2 if nil ) should == nil
+         ( n = 3 if false ) should == false
+         n should == 1
+       )
+     )
+      
+  )
+
+  
 )
