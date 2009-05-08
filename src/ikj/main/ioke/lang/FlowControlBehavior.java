@@ -311,7 +311,7 @@ public class FlowControlBehavior {
         obj.registerMethod(runtime.newNativeMethod("evaluates the first arguments, and then evaluates the second argument if the result was true, otherwise the last argument. returns the result of the call, or the result if it's not true.", new NativeMethod("if") {
                 private final DefaultArgumentsDefinition ARGUMENTS = DefaultArgumentsDefinition
                     .builder()
-                    .withRequiredPositional("condition")
+                    .withRequiredPositionalUnevaluated("condition")
                     .withOptionalPositionalUnevaluated("then")
                     .withOptionalPositionalUnevaluated("else")
                     .getArguments();
@@ -325,6 +325,16 @@ public class FlowControlBehavior {
                 public Object activate(IokeObject method, IokeObject context, IokeObject message, Object on) throws ControlFlow {
                     getArguments().checkArgumentCount(context, message, on);
 
+                    if(message.getArgumentCount() == 1 || /* called with single argument */
+                       ( message.getArgumentCount() == 2 &&  /* used as operator, Levels.attach(IokeObject) adds even terminator messages  */
+                         Message.isTerminator(message.getArguments().get(1)) && Message.next(message.getArguments().get(1)) == null ) ) {
+                        if(IokeObject.isTrue(on)) {
+                            return ((Message)IokeObject.data(message)).getEvaluatedArgument(message, 0, context);
+                        } else {
+                            return on;
+                        }
+                    }
+                    
                     Object test = ((Message)IokeObject.data(message)).getEvaluatedArgument(message, 0, context);
 
                     LexicalContext itContext = new LexicalContext(context.runtime, context.getRealContext(), "Lexical activation context", message, context);
@@ -349,7 +359,7 @@ public class FlowControlBehavior {
         obj.registerMethod(runtime.newNativeMethod("evaluates the first arguments, and then evaluates the second argument if the result was false, otherwise the last argument. returns the result of the call, or the result if it's true.", new NativeMethod("unless") {
                 private final DefaultArgumentsDefinition ARGUMENTS = DefaultArgumentsDefinition
                     .builder()
-                    .withRequiredPositional("condition")
+                    .withRequiredPositionalUnevaluated("condition")
                     .withOptionalPositionalUnevaluated("then")
                     .withOptionalPositionalUnevaluated("else")
                     .getArguments();
@@ -362,6 +372,16 @@ public class FlowControlBehavior {
                 @Override
                 public Object activate(IokeObject method, IokeObject context, IokeObject message, Object on) throws ControlFlow {
                     getArguments().checkArgumentCount(context, message, on);
+
+                    if(message.getArgumentCount() == 1 || /* called with single argument */
+                       ( message.getArgumentCount() == 2 &&  /* used as operator, Levels.attach(IokeObject) adds even terminator messages  */
+                         Message.isTerminator(message.getArguments().get(1)) && Message.next(message.getArguments().get(1)) == null ) ) {
+                        if(IokeObject.isTrue(on)) {
+                            return on;
+                        } else {
+                            return ((Message)IokeObject.data(message)).getEvaluatedArgument(message, 0, context);
+                        }
+                    }
 
                     Object test = ((Message)IokeObject.data(message)).getEvaluatedArgument(message, 0, context);
 

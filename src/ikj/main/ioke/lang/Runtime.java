@@ -339,6 +339,8 @@ public class Runtime {
             evaluateString("use(\"builtin/G10_origin\")", message, ground);
             evaluateString("use(\"builtin/G10_arity\")", message, ground);
 
+            evaluateString("use(\"builtin/I05_operators\")", message, ground);
+
             evaluateString("use(\"builtin/J05_javaGround\")", message, ground);
         } catch(ControlFlow cf) {
         }
