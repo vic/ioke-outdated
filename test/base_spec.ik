@@ -389,7 +389,7 @@ describe("Base",
     )
 
     it("should be possible to get a cell with an empty name",
-      cell(:"") kind should == "DefaultMethod"
+      cell(:"") kind should == "DefaultMacro"
     )
 
     it("should report an error if trying to get a cell that doesn't exist in that object",
