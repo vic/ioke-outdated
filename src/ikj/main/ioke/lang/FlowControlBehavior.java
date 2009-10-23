@@ -108,6 +108,9 @@ public class FlowControlBehavior {
                                     if(value == null) {
                                         if(newName.equals("cell=")) {
                                             ((Message)IokeObject.data(context.runtime.removeCellMessage)).sendTo(context.runtime.removeCellMessage, context, wherePlace, new ArrayList<Object>(realPlace.getArguments()));
+                                        } else if(newName.equals("other:cell=")) {
+                                            IokeObject msg = context.runtime.newMessage("other:removeCell!");
+                                            ((Message)IokeObject.data(msg)).sendTo(msg, context, wherePlace, new ArrayList<Object>(realPlace.getArguments()));
                                         } else {
                                             arguments.add(context.runtime.createMessage(Message.wrap(context.runtime.nil)));
                                             IokeObject msg = context.runtime.newMessageFrom(realPlace, newName, arguments);

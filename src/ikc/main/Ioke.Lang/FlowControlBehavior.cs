@@ -139,6 +139,9 @@ namespace Ioke.Lang {
                                                                                             if(value == null) {
                                                                                                 if(newName.Equals("cell=")) {
                                                                                                     ((Message)IokeObject.dataOf(context.runtime.removeCellMessage)).SendTo(context.runtime.removeCellMessage, context, wherePlace, new SaneArrayList(realPlace.Arguments));
+                                                                                                } else if(newName.Equals("other:cell=")) {
+                                                                                                    IokeObject msg = context.runtime.NewMessage("other:removeCell!");
+                                                                                                    ((Message)IokeObject.dataOf(msg)).SendTo(msg, context, wherePlace, new SaneArrayList(realPlace.Arguments));
                                                                                                 } else {
                                                                                                     arguments.Add(context.runtime.CreateMessage(Message.Wrap(context.runtime.nil)));
                                                                                                     IokeObject msg = context.runtime.NewMessageFrom(realPlace, newName, arguments);
