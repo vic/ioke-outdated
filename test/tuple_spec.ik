@@ -58,6 +58,13 @@ describe(DefaultBehavior,
       x = (1,2,3,4)
       x should mimic(Tuple Four)
     )
+
+    it("should evaluate arguments on the receive",
+      x = [1, 2, 3] (last, first)
+      x should mimic(Tuple Two)
+      x first should == 3
+      x second should == 1
+    )
   )
 )
 
