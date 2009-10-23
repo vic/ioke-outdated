@@ -88,17 +88,21 @@ namespace Ioke.Lang {
                                                                                             return method.runtime.NewList(names);
                                                                                         })));
 
-            obj.RegisterMethod(obj.runtime.NewNativeMethod("returns the names for keyword arguments",
-                                                           new TypeCheckingNativeMethod.WithNoArguments("keywords", obj,
+            obj.RegisterMethod(obj.runtime.NewNativeMethod("returns a dict with default keyword values",
+                                                           new TypeCheckingNativeMethod.WithNoArguments("keywordDefaults", obj,
                                                                                                         (method, on, args, keywords, context, message) => {
                                                                                                             Arity a = (Arity)IokeObject.dataOf(on);
-                                                                                                            var names = new SaneArrayList();
+                                                                                                            var defaults = new SaneDictionary();
                                                                                                             if(a.argumentsDefinition != null) {
-                                                                                                                foreach(string name in a.argumentsDefinition.Keywords) {
-                                                                                                                    names.Add(method.runtime.GetSymbol(name.Substring(0, name.Length - 1)));
+                                                                                                                foreach(DefaultArgumentsDefinition.Argument arg in a.argumentsDefinition.Arguments) {
+                                                                                                                    if(arg is DefaultArgumentsDefinition.KeywordArgument) {
+                                                                                                                        object sym = method.runtime.GetSymbol(arg.Name);
+                                                                                                                        object value = ((DefaultArgumentsDefinition.KeywordArgument)arg).DefaultValue;
+                                                                                                                        defaults[sym] = value;
+                                                                                                                    }
                                                                                                                 }
                                                                                                             }
-                                                                                                            return method.runtime.NewList(names);
+                                                                                                            return method.runtime.NewDict(defaults);
                                                                                                         })));
 
             obj.RegisterMethod(obj.runtime.NewNativeMethod("returns the symbol name for the krest argument.",

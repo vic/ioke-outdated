@@ -9,6 +9,9 @@ Arity do(
       msg sendTo(self))
   )
 
+  keywords = method("Return the names of keyword arguments",
+    keywordDefaults keys sort)
+
   required = method("Return the names of required positional arguments.",
     positionals(false))
 
@@ -124,6 +127,15 @@ Arity do(
 
         ; correct number of arguments
         o order = 0))
+
+    keywordDefaults = @keywordDefaults
+    keywordMissing = keywordDefaults keys asList - o keywords keys asList
+    keywordMissing each(key,
+      value = keywordDefaults[key]
+      if(cell(:value) && context, value = cell(:value) evaluateOn(context))
+      o keywords[key] = cell(:value)
+    )
+
     o
   )
 

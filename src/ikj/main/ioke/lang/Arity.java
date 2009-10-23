@@ -8,6 +8,7 @@ import ioke.lang.exceptions.ControlFlow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class Arity extends IokeData {
 
@@ -118,17 +119,22 @@ public class Arity extends IokeData {
                 }
             }));
 
-        arity.registerMethod(arity.runtime.newNativeMethod("returns the names for keyword arguments", new TypeCheckingNativeMethod.WithNoArguments("keywords", arity) {
+        arity.registerMethod(arity.runtime.newNativeMethod("returns a dict with default keyword values", new TypeCheckingNativeMethod.WithNoArguments("keywordDefaults", arity) {
                 @Override
                 public Object activate(IokeObject method, Object on, List<Object> args, Map<String, Object> keywords, IokeObject context, IokeObject message) throws ControlFlow {
                     Arity a = (Arity) IokeObject.data(on);
-                    List<Object> names = new ArrayList<Object>();
+                    Map<Object,Object> defaults = new HashMap<Object,Object>();
                     if (a.argumentsDefinition != null) {
-                        for(String name : a.argumentsDefinition.getKeywords()) {
-                            names.add(method.runtime.getSymbol(name.substring(0, name.length() - 1)));
+                        for(DefaultArgumentsDefinition.Argument arg : a.argumentsDefinition.getArguments()) {
+                            if (arg instanceof DefaultArgumentsDefinition.KeywordArgument) {
+                                String name = arg.getName();
+                                Object sym = method.runtime.getSymbol(name);
+                                Object value = ((DefaultArgumentsDefinition.KeywordArgument) arg).getDefaultValue();
+                                defaults.put(sym, value);
+                            }
                         }
                     }
-                    return method.runtime.newList(names);
+                    return method.runtime.newDict(defaults);
                 }
             }));
 

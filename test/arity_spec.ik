@@ -426,6 +426,13 @@ describe("Arity",
           a = Arity from(a 0, b 1, +c, +:krest) applyOn(Origin mimic, 2, 3)
           a keywords should be empty
         )
+
+        it("should contain keywords with default values if no karg given",
+          a = Arity from(foo:, bar: 2) applyOn(Origin mimic)
+          a keywords[:bar] should == 2
+          a keywords[:foo] should be nil
+          a missing should be empty
+        )
       )
 
       describe("rest",
