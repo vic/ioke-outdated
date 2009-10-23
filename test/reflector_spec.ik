@@ -594,6 +594,45 @@ describe(Reflector,
     )
   )
 
+  describe("other:cell in let binding",
+    
+    it("should rebind a place specification during the time of the code running",
+      Text fluxie = Origin mimic
+      Text fluxie wowsie = 13
+      let(
+        Reflector other:cell(Text fluxie, :wowsie), 14,
+        Reflector other:cell("foo" fluxie, :wowsie)) should == 14
+      Text fluxie wowsie should == 13
+    )
+
+    it("should unbind places even if a non-local transfer happens",
+      Text fluxie2 = Origin mimic
+      Text fluxie2 wowsie = 13
+      bind(rescue(Condition Error, fn(c, nil)),
+        let(
+          Reflector other:cell(Text fluxie2, :wowsie), 14,
+          Reflector other:cell("foo" fluxie2, :wowsie) should == 14
+          error!("non-local yay!")))
+      Text fluxie2 wowsie should == 13
+    )
+
+    it("should bind a new place temporarily, and then remove it",
+      X = Origin mimic
+      let(Reflector other:cell(X, :testOfLetMethod), method(42),
+        Reflector other:cell(X, :testOfLetMethod) call should == 42
+      )
+      X cellNames should not include(:testOfLetMethod)
+    )
+
+    it("should bind a new place with cell temporarily, and then remove it",
+      X = Origin mimic
+      let(Reflector other:cell(X, :testOfLetMethod2), method(42),
+        Reflector other:cell(X, :testOfLetMethod2) call should == 42
+      )
+      X cellNames should not include(:testOfLetMethod2)
+    )
+  )
+
   describe("other:cell?",
     it("should be possible to check for the existance of a cell using a text argument",
       x = 42
