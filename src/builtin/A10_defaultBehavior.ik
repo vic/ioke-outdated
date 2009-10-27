@@ -1,10 +1,11 @@
 
 DefaultBehavior FlowControl cell("") = macro(
   "returns result of evaluating first argument or a tuple if given multiple arguments",
-  args = call arguments
-  if(args length == 1,
+  if(call arguments length == 1,
     call argAt(0),
-    tuple(*args map(evaluateOn(call ground, call receiver)))))
+    ;; note this is not the same than always using call receiver
+    receiver = if(call ground same?(call receiver), call ground, call receiver)
+    tuple(* call arguments map(evaluateOn(call ground, receiver)))))
 
 DefaultBehavior Boolean - = method(
   "returns the negation of the argument",
