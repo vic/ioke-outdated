@@ -92,7 +92,7 @@ describe("assignment",
       cont z should == 1
     )
 
-    it("should assign all values from tuple created on right hand side",
+    it("should assign all values from tuple created with explicit receiver",
       l = [1, 2, 3]
       (a, b, c) = l (first, last, mapped(asText) first)
       a should == 1
@@ -103,6 +103,13 @@ describe("assignment",
       d should == 2
       e should == 4
       f should == 3
+    )
+
+    it("should assign all values from tuple created without explicit receiver",
+      o = Origin with(a: 1) do( initialize = method(b, @ (c, d) = (b, a) ) )
+      p = o mimic(2)
+      p c should == 2
+      p d should == 1
     )
 
     it("should use asTuple on the right hand side to get the values",
