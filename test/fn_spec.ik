@@ -52,6 +52,16 @@ describe(DefaultBehavior,
       x call should == 46
     )
 
+    it("should be possible to execute it by explicitly giving an argument list",
+      a = fn(a, b, a + b)
+      a kind should == "LexicalBlock"
+      a(1, 2) should == 3
+      
+      b = fn(:foo)
+      b kind should == "LexicalBlock"
+      b() should == :foo
+    )
+
     it("should have access to variables in the scope it was defined, in simple do",
       x = 26
       fn(x) call should == 26
