@@ -51,26 +51,26 @@ describe("assignment",
     m should == "=(x, (10 +(20)))")
 
   it("should be possible to assign a method to +",
-    m = parse("+ = method()")
+    m = parse("+ = method")
     m should == "=(+, method)"
 
-    m = parse("Ground + = method()")
+    m = parse("Ground + = method")
     m should == "Ground =(+, method)"
   )
 
   it("should be possible to assign a method to =",
-    m = parse("= = method()")
+    m = parse("= = method")
     m should == "=(=, method)"
 
-    m = parse("Ground = = method()")
+    m = parse("Ground = = method")
     m should == "Ground =(=, method)"
   )
 
   it("should be possible to assign a method to ..",
-    m = parse(".. = method()")
+    m = parse(".. = method")
     m should == "=(.., method)"
 
-    m = parse("Ground .. = method()")
+    m = parse("Ground .. = method")
     m should == "Ground =(.., method)"
   )
 
