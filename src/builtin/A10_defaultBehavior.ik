@@ -173,8 +173,8 @@ method(other,
   otherMethod = call arguments[0]
 
   ''(method(other,
-      if(self same?(`self),
-        other mimics?(`self),
+      if(self cellOwner?(:kind),
+        other mimics?(self),
         bind(rescue(Condition Error, fn(c, false)),
           self `(otherMethod) (other))))))
 
