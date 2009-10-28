@@ -28,6 +28,7 @@ public class Message extends IokeData {
     private int pos;
 
     private List<Object> arguments = new ArrayList<Object>();
+    private boolean hasArgumentParens = false;
 
     public IokeObject next;
     public IokeObject prev;
@@ -800,8 +801,9 @@ public class Message extends IokeData {
         ((Message)IokeObject.data(message)).name = name;
     }
 
-    public static void setArguments(IokeObject message, List<Object> arguments) {
+    public static void setArguments(IokeObject message, List<Object> arguments, boolean hasArgumentParens) {
         ((Message)IokeObject.data(message)).arguments = arguments;
+        ((Message)IokeObject.data(message)).hasArgumentParens = hasArgumentParens;
     }
 
     public static void setFile(IokeObject message, String file) {
@@ -841,11 +843,13 @@ public class Message extends IokeData {
     }
 
     public boolean isKeyword() {
-        return name.length() > 1 && arguments.size() == 0 && name.charAt(name.length()-1) == ':';
+        return name.length() > 1 && arguments.size() == 0 && 
+	    !hasArgumentParens && name.charAt(name.length()-1) == ':';
     }
 
     public boolean isSymbol() {
-        return name.length() > 1 && name.charAt(0) == ':';
+        return name.length() > 1 && arguments.size() == 0 && 
+	    !hasArgumentParens && name.charAt(0) == ':';
     }
 
     @Override
@@ -1297,7 +1301,7 @@ public class Message extends IokeData {
             base.append(".\n");
         } else {
             base.append(this.name);
-            if(arguments.size() > 0 || this.name.length() == 0) {
+            if(hasArgumentParens || arguments.size() > 0 || this.name.length() == 0) {
                 base.append("(");
                 String sep = "";
                 for(Object o : arguments) {
@@ -1350,7 +1354,7 @@ public class Message extends IokeData {
         } else {
             base.append(this.name);
             int theLine = line;
-            if(arguments.size() > 0 || this.name.length() == 0) {
+            if(hasArgumentParens || arguments.size() > 0 || this.name.length() == 0) {
                 base.append("(");
                 String sep = "";
                 for(Object o : arguments) {

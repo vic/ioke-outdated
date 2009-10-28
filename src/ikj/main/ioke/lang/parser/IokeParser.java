@@ -353,7 +353,7 @@ public class IokeParser {
         m.setPosition(cc);
 
         IokeObject mx = runtime.createMessage(m);
-        Message.setArguments(mx, args);
+        Message.setArguments(mx, args, true);
         //System.err.println("-parseEmptyMessageSend()");
         return mx;
     }
@@ -375,11 +375,11 @@ public class IokeParser {
             read();
             List<Object> args = parseExpressionChain();
             parseCharacter(')');
-            Message.setArguments(mx, args);
+            Message.setArguments(mx, args, true);
         } else {
             List<Object> args = parseExpressionChain();
             parseCharacter(']');
-            Message.setArguments(mx, args);
+            Message.setArguments(mx, args, false);
         }
 
         //System.err.println("-parseSquareMessageSend()");
@@ -404,11 +404,11 @@ public class IokeParser {
             read();
             List<Object> args = parseExpressionChain();
             parseCharacter(')');
-            Message.setArguments(mx, args);
+            Message.setArguments(mx, args, true);
         } else {
             List<Object> args = parseExpressionChain();
             parseCharacter('}');
-            Message.setArguments(mx, args);
+            Message.setArguments(mx, args, false);
         }
 
         //System.err.println("-parseCurlyMessageSend()");
@@ -429,7 +429,7 @@ public class IokeParser {
         m.setPosition(cc);
 
         IokeObject mx = runtime.createMessage(m);
-        Message.setArguments(mx, args);
+        Message.setArguments(mx, args, false);
         //System.err.println("-parseSetMessageSend()");
         return mx;
     }
@@ -565,7 +565,7 @@ public class IokeParser {
                     if(!name.equals("internal:createRegexp")) {
                         Message.setName(mm, name);
                     }
-                    Message.setArguments(mm, args);
+                    Message.setArguments(mm, args, false);
 
                     sb = new StringBuilder();
                     while(true) {
@@ -599,7 +599,7 @@ public class IokeParser {
                     if(!name.equals("internal:createRegexp")) {
                         Message.setName(mm, name);
                     }
-                    Message.setArguments(mm, args);
+                    Message.setArguments(mm, args, false);
                     sb = new StringBuilder();
                     while(true) {
                         switch(rr = peek()) {
@@ -688,7 +688,7 @@ public class IokeParser {
                         }
                         Message.setName(mm, name);
                     }
-                    Message.setArguments(mm, args);
+                    Message.setArguments(mm, args, false);
                     return mm;
                 } else {
                     sb.append((char)rr);
@@ -715,7 +715,7 @@ public class IokeParser {
                         }
                         Message.setName(mm, name);
                     }
-                    Message.setArguments(mm, args);
+                    Message.setArguments(mm, args, false);
                     return mm;
                 } else {
                     sb.append((char)rr);
@@ -969,7 +969,7 @@ public class IokeParser {
                         read();
                         List<Object> args = parseExpressionChain();
                         parseCharacter(')');
-                        Message.setArguments(mx, args);
+                        Message.setArguments(mx, args, true);
                     }
                     return mx;
                 }
@@ -1011,7 +1011,7 @@ public class IokeParser {
                         read();
                         List<Object> args = parseExpressionChain();
                         parseCharacter(')');
-                        Message.setArguments(mx, args);
+                        Message.setArguments(mx, args, true);
                     }
                     return mx;
                 }
@@ -1168,7 +1168,7 @@ public class IokeParser {
             read();
             List<Object> args = parseExpressionChain();
             parseCharacter(')');
-            Message.setArguments(mx, args);
+            Message.setArguments(mx, args, true);
         }
 
         //System.err.println("-parseRegularMessageSend() : " + mx);
