@@ -53,6 +53,21 @@ describe(Origin,
       z should not === z
       z should === x
     )
+
+    it("should check for mimicness if receiver is a kind (that is, it owns a :kind cell)",
+      A = Origin mimic
+      B = A mimic
+      a = A mimic
+      b = B mimic
+      A should === A
+      A should === a
+      a should not === A
+      A should === b
+      a should not === b
+      A should === B
+      B should not === A
+    )
+
   )
 
   describe("around mimic",
