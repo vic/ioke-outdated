@@ -136,6 +136,10 @@ describe(Message,
       Message fromText("foo") code should == "foo"
     )
 
+    it("should include empty parens if explicitly given",
+      Message fromText("foo()") code should == "foo()"
+    )
+
     it("should return a text representation of itself with arguments",
       Message fromText("foo(123, 321)") code should == "foo(123, 321)"
     )

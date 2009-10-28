@@ -86,7 +86,7 @@ bar" should == "foobar"
   describe("square brackets",
     it("should be parsed correctly in regular message passing syntax",
       m = parse("[]()")
-      m should == "[]"
+      m should == "[]()"
     )
 
     it("should be parsed correctly in regular message passing syntax with arguments",
@@ -164,7 +164,7 @@ bar" should == "foobar"
   describe("curly brackets",
     it("should be parsed correctly in regular message passing syntax",
       m = parse("{}()")
-      m should == "{}"
+      m should == "{}()"
     )
 
     it("should be parsed correctly in regular message passing syntax with arguments",
