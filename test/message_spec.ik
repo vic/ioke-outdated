@@ -231,6 +231,14 @@ describe(Message,
       Message fromText("()") keyword? should be false
     )
 
+    it("should return false for something with args",
+      Message fromText("foo:(a)") keyword? should be false
+    )
+
+    it("should return false for something with empty args",
+      Message fromText("foo:()") keyword? should be false
+    )
+
     it("should validate type of receiver",
       Message should checkReceiverTypeOn(:keyword?)
     )
@@ -250,9 +258,37 @@ describe(Message,
       Message fromText("()") symbol? should be false
     )
 
+    it("should return false for single collon",
+      Message fromText(":") symbol? should be false
+    )
+
+    it("should return false when given some arguments",
+      Message fromText(":foo(1, 2)") symbol? should be false
+    )
+
+    it("should return false when given empty arguments",
+      Message fromText(":foo()") symbol? should be false
+    )
+
     it("should validate type of receiver",
       Message should checkReceiverTypeOn(:symbol?)
     )
+  )
+
+  describe("activation?",
+
+    it("should return true for something with empty arguments",
+      Message fromText("foo()") activation? should be true
+    )
+
+    it("should return true for something with arguments",
+      Message fromText("foo(bar)") activation? should be true
+    )
+
+    it("should return false for something without arguments",
+      Message fromText("foo") activation? should be false
+    )
+
   )
 
   describe("from",
