@@ -1034,7 +1034,7 @@ public class IokeObject implements TypeChecker {
     }
 
     public Object getOrActivate(IokeObject context, IokeObject message, Object on) throws ControlFlow {
-        if(isActivatable() || ((data instanceof CanRun) && message.getArguments().size() > 0)) {
+        if(isActivatable() || ((data instanceof CanRun) && ((Message)IokeObject.data(message)).isActivation())) {
             return activate(context, message, on);
         } else {
             return this;
