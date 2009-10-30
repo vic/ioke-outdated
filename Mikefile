@@ -1,0 +1,140 @@
+#!/usr/bin/env mike
+use("ant")
+
+VERSION = "E"
+VERSION_RUNTIME = "0.3.0-snapshot"
+VERSION_FILE = "ioke-#{VERSION}-ikj-#{VERSION_RUNTIME}"
+VERSION_STRING = "Ioke #{VERSION} ikj #{VERSION_RUNTIME}"
+
+;; We include Ant Mixin to use < % $ methods directly.
+;; Create an Ant Project stored on this ground's :ant cell
+Ant mixin!
+
+<property(file: "build.properties")
+<property(file: "default.build.properties")
+
+<path(id: "build.classpath",   <fileset(dir: "${lib.build.dir}",   includes: "*.jar"))
+<path(id: "runtime.classpath", <fileset(dir: "${lib.release.dir}", includes: "*.jar"))
+
+<taskdef(resource: "tasks.properties",
+  <classpath(
+    <path(refid: "build.classpath")
+    <path(refid: "runtime.classpath")))
+
+namespace(:generate, 
+  
+  lexer = $("${src.generated.dir}/iokeLexer.java")
+  grammar = $("${antlr.grammar.dir}/${antlr.grammar.file}")
+  
+  file(lexer => file(grammar),
+    mkdir(FileSystem parentOf(it name))
+    <java(classname: "org.antlr.Tool", fork: "true",
+      dir: "${antlr.grammar.dir}", classpathref: "build.classpath", maxmemory: "256m",
+      <arg(line: "-o ${src.generated.dir.relative} ${antlr.grammar.file}")))
+  
+  task(:antlr => lexer,
+    "Generates source files from the ANTLR definitions",
+    nil)
+  
+  task(:filters => :antlr, 
+    "Generates source files from the ANTLR definitions",
+    <exec(executable: "ruby", input: "generate_filter_data.rb", 
+      failonerror: false, failifexecutionfails: false))
+)
+
+task(:generate => :generate:filters)
+
+task(:compile => :generate,
+  "Compile the source files for the project",
+  mkdir(%("classes.dir"))
+    
+  <filter(filtersfile: "version_data.properties")
+  <filter(token: "VERSION", value: VERSION)
+  <filter(token: "VERSION_RUNTIME", value: VERSION_RUNTIME)
+  <filter(token: "VERSION_STRING", value: VERSION_STRING)
+  
+  <javac(destdir: "${classes.dir}", debug: true, 
+    source: "${javac.version}", target: "${javac.version}",
+    <classpath(refid: "build.classpath")
+    <src(path: "${src.dir}")
+    <src(path: "${src.generated.dir}")
+    <include(name: "**/*.java"))
+  
+  <copy(todir: "${classes.dir}", filtering: true, overwrite: true,
+    <fileset(dir: "${src.dir}", includes: "**/*.properties"))
+  
+  <copy(todir: "${classes.dir}", 
+    <fileset(dir: "${src.raw.dir}", includes: "builtin/**/*.ik"))
+)
+
+task(:test => :compile, "Runs all ISpec tests",
+  <java(classname: "ioke.lang.Main", fork: true, failonerror: true, maxmemory: "256m",
+    <classpath(refid: "runtime.classpath")
+    <classpath(path: "${classes.dir}")
+    <arg(line: "bin/ispec test -fs")))
+
+namespace(:coverage,
+  
+  task(:instrument => :compile,
+    <cobertura-instrument(todir: "${coverage.classes.dir}",
+      <fileset(dir: "${classes.dir}", excludes: "ioke/lang/parser/**/*.class")))
+
+  task(:report => :instrument, 
+    <java(classname: "ioke.lang.Main", fork: true, failonerror: true,
+      <classpath(refid: "runtime.classpath")
+      <classpath(path: "${coverage.classes.dir}")
+      <classpath(path: "${classes.dir}")
+      <arg(line: "bin/ispec test -fs"))
+    <cobertura-report(srcdir: "${src.dir}", destdir: "${coverage.report.dir}")
+  )
+)
+
+task(:coverage => :coverage:report,
+  "Runs all ISpec tests using Cobertura and produces a report", nil)
+
+
+task(:jar => :test, "Create the ioke.jar file",
+  <jar(destfile: "${lib.dir}/ioke.jar",
+    <fileset(dir: "${classes.dir}",
+      [:class, :ik, :properties] each(ext, <include(name: "**/*.#{ext}")))
+    FileSystem[$("${lib.release.dir}/{antlr,jline,joda-time,asm}*.jar")] each(jar,
+      <zipfileset(src: jar, includes: "**/*")
+    )
+    <manifest(
+      <attribute(name: "Built-By", value:"${user.name}")
+      <attribute(name: "Main-Class", value: "ioke.lang.Main"))
+  )
+)
+
+task("jar-notest" => :compile) actions = task(:jar) actions
+task("jar-notest") documentation = "#{task(:jar) documentation} without running tests."
+
+task("jar-lib" => :jar, "Create the ioke-lib.jar file",
+  <jar(destfile: "${lib.dir}/ioke-lib.jar",
+    <fileset(dir: "lib/ioke", <include(name: "**/*"))
+    <manifest(<attribute(name: "Built-By", value: "${user.name}"))))
+
+task("jar-lib-notest" => "jar-notest") actions = task("jar-lib") actions
+task("jar-lib-notest") documentation = "#{task("jar-lib") documentation} without running tests."
+
+task("dist-bin" => :jar, "Create binary distribution balls.", 
+  pkg = fn(fileset, +:attr,
+    <(`fileset, *attr, dir: ".", prefix:"ioke", <include(name: "bin/**"))
+    <(`fileset, dir: ".", prefix: "ioke",
+      includes = "lib/ioke*.jar lib/ioke/** dok/** share/** COPYING LICENSE* README"
+      includes split(#/\s+/) each(name, <include(name: name))))
+  mkdir(%("release.dir"))
+  <tar(destfile: "${release.dir}/#{VERSION_FILE}.tar.gz", compression: "gzip", 
+    pkg(:tarfileset, mode: 755))
+  <zip(destfile: "${release.dir}/#{VERSION_FILE}.zip", pkg(:zipfileset, filemode: 755))
+)
+
+task(:dist => "dist-bin")
+
+task(:clean, "clean almost everything",
+  <delete(dir: "${build.dir}")
+  <delete(file: "${lib.dir}/ioke.jar", quiet: true)
+  <delete(file: "${lib.dir}/ioke-lib.jar", quiet: true)
+  <delete(dir: "${src.generated.dir}"))
+
+

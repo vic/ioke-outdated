@@ -1,0 +1,4 @@
+#!/usr/bin/env ioke
+; -*- ioke -*- 
+use("mike/runner")
+Mike Runner run(System programArguments)
