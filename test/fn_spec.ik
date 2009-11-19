@@ -184,6 +184,101 @@ describe(DefaultBehavior,
 )
 
 describe(LexicalBlock,
+  describe("->",
+    it("should take a block and return a new one that combines them",
+      x = fn(a, a + 10)
+      y = fn(a, a * 5)
+      (x -> y) call(32) should == 210
+    )
+  )
+
+  describe("<-",
+    it("should take a block and return a new one that combines them",
+      x = fn(a, a + 10)
+      y = fn(a, a * 5)
+      (x <- y) call(32) should == 170
+    )
+  )
+
+  describe("&",
+    it("should take a block and return a new one that combines them using boolean logic",
+      x = fn(a, a > 5)
+      y = fn(a, a < 10)
+      res = x & y
+      res call(0) should be false
+      res call(1) should be false
+      res call(2) should be false
+      res call(3) should be false
+      res call(4) should be false
+      res call(5) should be false
+      res call(6) should be true
+      res call(7) should be true
+      res call(8) should be true
+      res call(9) should be true
+      res call(10) should be false
+      res call(11) should be false
+      res call(12) should be false
+    )
+  )
+
+  describe("|",
+    it("should take a block and return a new one that combines them using boolean logic",
+      x = fn(a, a < 5)
+      y = fn(a, a > 10)
+      res = x | y
+      res call(0) should be true
+      res call(1) should be true
+      res call(2) should be true
+      res call(3) should be true
+      res call(4) should be true
+      res call(5) should be false
+      res call(6) should be false
+      res call(7) should be false
+      res call(8) should be false
+      res call(9) should be false
+      res call(10) should be false
+      res call(11) should be true
+      res call(12) should be true
+    )
+  )
+
+  describe("complement",
+    it("should return a new block that is the complement of the original one",
+      x = fn(a, a < 5)
+      res = x complement
+      res call(0) should be false
+      res call(4) should be false
+      res call(5) should be true
+      res call(6) should be true
+      res call(7) should be true
+      res call(8) should be true
+    )
+  )
+
+  describe("iterate",
+    it("should return a sequence",
+      fn() iterate should mimic(Sequence)
+    )
+
+    it("should be possible to define a sequence of fibonacci",
+      fibseq = fn(a, b, [b, a + b]) iterate(0, 1) mapped(first)
+      fibseq next should == 0
+      fibseq next should == 1
+      fibseq next should == 1
+      fibseq next should == 2
+      fibseq next should == 3
+      fibseq next should == 5
+      fibseq next should == 8
+      fibseq next should == 13
+      fibseq next should == 21
+      fibseq next should == 34
+      fibseq next should == 55
+      fibseq next should == 89
+      fibseq next should == 144
+      fibseq next should == 233
+    )
+  )
+
   it("should report arity failures with regular arguments",
     noargs = fnx(nil)
     onearg = fnx(x, nil)
